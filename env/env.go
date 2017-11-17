@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func ExendFromFile(filename string) error {
@@ -24,12 +25,14 @@ func ExendFromFile(filename string) error {
 	return nil
 }
 
-func Read(p interface{}, name string) error {
-	raw := os.Getenv(name)
+func Var(p interface{}, name string) error {
+	return parse(p, os.Getenv(name))
+}
 
+func parse(p interface{}, raw string) error {
 	switch p := p.(type) {
 	case *bool:
-		v, err := strconv.ParseBool(name)
+		v, err := strconv.ParseBool(raw)
 		*p = v
 		return err
 
@@ -86,13 +89,12 @@ func Read(p interface{}, name string) error {
 		v, err := strconv.ParseFloat(raw, 64)
 		*p = float64(v)
 		return err
-
 	}
 
 	return nil
 }
 
-func FillStruct(p interface{}) (err error) {
+func Struct(p interface{}) (err error) {
 	rv := reflect.ValueOf(p)
 
 	if rv.Kind() != reflect.Ptr {
@@ -115,12 +117,36 @@ func FillStruct(p interface{}) (err error) {
 			continue
 		}
 
+		var isRequired bool
+
+		for j, value := range strings.Split(name, ",") {
+			if j == 0 {
+				name = value
+				continue
+			}
+
+			switch value {
+			case "required":
+				isRequired = true
+			}
+		}
+
 		fv := rv.Field(i)
 		if fv.Kind() != reflect.Ptr {
 			fv = fv.Addr()
 		}
 
-		err = Read(fv.Interface(), name)
+		raw := os.Getenv(name)
+
+		if raw == "" {
+			if isRequired {
+				return fmt.Errorf("Environment variable %s is required", name)
+			}
+
+			raw = tag.Get("default")
+		}
+
+		err = Var(fv.Interface(), name)
 		if err != nil {
 			return
 		}
