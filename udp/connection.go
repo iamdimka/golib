@@ -8,22 +8,25 @@ const (
 )
 
 var (
+	// BufferSize for messages
 	BufferSize = 1000
 )
 
 type Connection struct {
 	sync.Mutex
-	Addr           *net.UDPAddr
-	server         *Server
+
+	Addr   *net.UDPAddr
+	server *Server
+
 	outSeq         uint32
 	acceptedOutSeq uint32
 	inSeq          uint32
 	in32           uint32     //last32 received messages
-	out32          [32][]byte //last32 sent messages
+	out32          [32][]byte //last32 sent packets, [0] equals last with id = outSeq
 	pending32      [32][]byte // 0 is inSeq, 1 = inSeq-1
 }
 
-func newConnection(addr *net.UDPAddr, server *Server) *Connection {
+func incomingConnection(addr *net.UDPAddr, server *Server) *Connection {
 	return &Connection{
 		Addr:   addr,
 		server: server,
@@ -38,15 +41,29 @@ func (c *Connection) prepend(payload []byte) {
 	c.out32[0] = payload
 }
 
-func (c *Connection) Receive(p Packet) {
-	seq := p.Sequence()
-	diff := seq - c.inSeq
+func (c *Connection) checkOutgoing(p Packet) {
+	ack := p.Ack()
 
-	if seq <= c.inSeq {
+	if ack <= c.acceptedOutSeq {
 		return
 	}
 
-	if diff > 31 {
+	
+
+	diff := int(c.outSeq - ack)
+
+}
+
+func (c *Connection) Receive(p Packet) {
+
+	seq := p.Sequence()
+	diff := int(seq - c.inSeq)
+
+	if diff == 1 { // super
+		return
+	}
+
+	if diff > 31 { //blat
 		return
 	}
 

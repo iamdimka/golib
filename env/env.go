@@ -10,6 +10,10 @@ import (
 	"strings"
 )
 
+func ExtendIfDotEnv() bool {
+	return ExendFromFile(".env") == nil
+}
+
 func ExendFromFile(filename string) error {
 	file, err := ioutil.ReadFile(filename)
 
@@ -38,6 +42,10 @@ func parse(p interface{}, raw string) error {
 
 	case *string:
 		*p = raw
+		return nil
+
+	case *[]byte:
+		*p = []byte(raw)
 		return nil
 
 	case *uint8:

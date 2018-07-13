@@ -3,19 +3,25 @@ package telegram
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"strings"
 	"time"
+)
+
+var (
+	Endpoint string = "https://api.telegram.org/"
 )
 
 type Bot struct {
 	token  string
+	base   string
 	client *http.Client
 }
 
 func New(token string) *Bot {
 	return &Bot{
 		token: token,
+		base:  strings.Join([]string{Endpoint, "bot", token}, ""),
 		client: &http.Client{
 			Transport: &http.Transport{
 				MaxIdleConnsPerHost: 5,
@@ -31,9 +37,8 @@ func (b *Bot) request(method string, payload, response interface{}) (err error) 
 		res  *http.Response
 	)
 
-	url := fmt.Sprintf("https://api.telegram.org/bot%s/%s", b.token, method)
+	url := strings.Join([]string{b.base, method}, "/")
 	data, err = json.Marshal(payload)
-	fmt.Println(url, string(data))
 
 	if err != nil {
 		return
@@ -53,7 +58,7 @@ func (b *Bot) request(method string, payload, response interface{}) (err error) 
 	}
 
 	if !r.Ok {
-		return &apiError{r.ErrorCode, r.ErrorDescription}
+		return &r
 	}
 
 	return json.Unmarshal(r.Result, &response)

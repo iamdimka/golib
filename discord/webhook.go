@@ -18,6 +18,16 @@ func (d *Discord) SetWebHook(webhook string) {
 	d.webhook = webhook
 }
 
+func (d *Discord) Textf(format string, args ...interface{}) error {
+	return d.Text(fmt.Sprintf(format, args...))
+}
+
+func (d *Discord) Text(content string) error {
+	return d.Webhook(&Webhook{
+		Content: content,
+	})
+}
+
 func (d *Discord) Webhook(payload *Webhook) error {
 	data, err := json.Marshal(payload)
 	if err != nil {
@@ -37,6 +47,6 @@ func (d *Discord) Webhook(payload *Webhook) error {
 		return err
 	}
 
-	fmt.Println(string(m))
+	fmt.Printf("%s\n", m)
 	return nil
 }

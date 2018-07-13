@@ -22,40 +22,14 @@ func (m HandlerFunc) HandleTCP(c net.Conn) {
 type Server struct {
 	sync.Mutex
 	Listener net.Listener
-	// Connections map[*Connection]struct{}
-	handler func(net.Conn)
+	handler  func(net.Conn)
 }
 
 func New(handler Handler) *Server {
 	return &Server{
-		// Connections: make(map[*Connection]struct{}),
-		// bufferPool:  make(chan []byte, 1024),
 		handler: handler.HandleTCP,
 	}
 }
-
-// func (s *Server) GetBytes() (b []byte) {
-// 	select {
-// 	case bt := <-s.bufferPool:
-// 		return bt
-// 	default:
-// 	}
-
-// 	return
-// }
-
-// func (s *Server) PutBytes(b []byte) {
-// 	if cap(b) > maxCap {
-// 		return
-// 	}
-
-// 	b = b[:0]
-// 	select {
-// 	case s.bufferPool <- b:
-// 	default:
-// 	}
-// 	return
-// }
 
 func (s *Server) Listen(addr string) error {
 	ln, err := net.Listen("tcp4", addr)

@@ -11,11 +11,12 @@ func (fn HandlerFunc) HandleTelegramUpdate(up *Update) {
 }
 
 func (b *Bot) HandleUpdates(offset int, h Handler) (err error) {
-	updates := []*Update{}
 	req := &GetUpdatesRequest{
 		Offset:  offset,
 		Timeout: 30,
 	}
+
+	updates := []*Update{}
 
 	for {
 		err = b.request("getUpdates", req, &updates)

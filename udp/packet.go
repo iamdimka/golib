@@ -4,11 +4,12 @@ package udp
 type Packet []byte
 
 func NewPacket(protocol uint16) Packet {
-	return []byte{
-		byte(protocol),
-		byte(protocol >> 8),
-		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	}
+	packet := make(Packet, headerPacketSize)
+
+	packet[0] = byte(protocol)
+	packet[1] = byte(protocol >> 8)
+
+	return packet
 }
 
 func (p Packet) Protocol() uint16 {
@@ -49,17 +50,17 @@ func (p Packet) SetAckBits(ack uint32) {
 }
 
 func (p Packet) Payload() []byte {
-	return p[14:]
+	return p[headerPacketSize:]
 }
 
 func (p Packet) HeaderSize() int {
-	return 14
+	return headerPacketSize
 }
 
 func (p Packet) PayloadSize() int {
-	return len(p) - 14
+	return len(p) - headerPacketSize
 }
 
 func (p Packet) SetPayload(data []byte) []byte {
-	return append(p[:14], data...)
+	return append(p[:headerPacketSize], data...)
 }

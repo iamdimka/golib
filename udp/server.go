@@ -4,7 +4,14 @@ import (
 	"bytes"
 	"encoding/binary"
 	"net"
+	"time"
 )
+
+const headerPacketSize = 14
+
+type temporary interface {
+	Temporary() bool
+}
 
 type Server struct {
 	protocol    uint16
@@ -58,10 +65,17 @@ func (s *Server) handleConnections() {
 		l, from, err = s.conn.ReadFromUDP(buf)
 
 		if err != nil {
+			if err, ok := err.(temporary); ok {
+				if err.Temporary() {
+					time.Sleep(time.Millisecond * 5)
+					continue
+				}
+			}
+
 			break
 		}
 
-		if l < 14 {
+		if l < headerPacketSize {
 			continue
 		}
 
@@ -74,22 +88,11 @@ func (s *Server) handleConnections() {
 		id = getConnectionID(from)
 		connection, ok = s.connections[id]
 		if !ok {
-			connection = newConnection(from, s)
+			connection = incomingConnection(from, s)
 			s.connections[id] = connection
 		}
-
-		//ackbitfields = [10,11,12,13]
 
 		reader.Reset(buf)
 		binary.Read(reader, binary.LittleEndian, &protocol)
 	}
-}
-
-func getConnectionID(addr *net.UDPAddr) interface{} {
-	if len(addr.IP) == 4 {
-		return uint64(addr.IP[3]) | uint64(addr.IP[2])<<8 | uint64(addr.IP[1])<<16 |
-			uint64(addr.IP[0])<<24 | uint64(addr.Port)<<32
-	}
-
-	return string(append(addr.IP, byte(addr.Port), byte(addr.Port>>8)))
 }
