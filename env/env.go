@@ -97,6 +97,9 @@ func parse(p interface{}, raw string) error {
 		v, err := strconv.ParseFloat(raw, 64)
 		*p = float64(v)
 		return err
+
+	default:
+		return fmt.Errorf("Type %v is not supported", reflect.TypeOf(p))
 	}
 
 	return nil

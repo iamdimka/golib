@@ -61,5 +61,9 @@ func (b *Bot) request(method string, payload, response interface{}) (err error) 
 		return &r
 	}
 
-	return json.Unmarshal(r.Result, &response)
+	if response == nil {
+		return
+	}
+
+	return json.Unmarshal(r.Result, response)
 }

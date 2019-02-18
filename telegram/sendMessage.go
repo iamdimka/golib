@@ -1,7 +1,7 @@
 package telegram
 
 // SendMessage https://core.telegram.org/bots/api#sendmessage
-type SendMessageRequest struct {
+type SendMessage struct {
 	ChatID                int64        `json:"chat_id"`
 	Text                  string       `json:"text"`
 	ParseMode             string       `json:"parse_mode,omitempty"`
@@ -11,7 +11,7 @@ type SendMessageRequest struct {
 	ReplyMarkup           *ReplyMarkup `json:"reply_markup,omitempty"`
 }
 
-func (b *Bot) SendMessage(message *SendMessageRequest) (resp *Message, err error) {
+func (b *Bot) SendMessage(message *SendMessage) (resp *Message, err error) {
 	err = b.request("sendMessage", message, &resp)
 	return
 }

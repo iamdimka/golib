@@ -1,6 +1,20 @@
 package udp
 
-import "net"
+import (
+	"time"
+	"net"
+	"sync"
+)
+
+var (
+	bufferPool sync.Pool
+)
+
+func init() {
+	bufferPool.New = func() interface{} {
+		return make([]byte, mtu)
+	}
+}
 
 func getConnectionID(addr *net.UDPAddr) interface{} {
 	if len(addr.IP) == 4 {
@@ -9,4 +23,8 @@ func getConnectionID(addr *net.UDPAddr) interface{} {
 	}
 
 	return string(append(addr.IP, byte(addr.Port), byte(addr.Port>>8)))
+}
+
+func ms() uint32 {
+	return uint32(time.Now().UnixNano() / int64(time.Millisecond))
 }

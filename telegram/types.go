@@ -119,6 +119,18 @@ type Update struct {
 	EditedChannelPost  *Message            `json:"edited_channel_post,omitempty"`
 	InlineQuery        *InlineQuery        `json:"inline_query,omitempty"`
 	ChosenInlineResult *ChosenInlineResult `json:"chosen_inline_result,omitempty"`
+	CallbackQuery      *CallbackQuery      `json:"callback_query,omitempty"`
+}
+
+// CallbackQuery https://core.telegram.org/bots/api#callbackquery
+type CallbackQuery struct {
+	ID              string   `json:"id"`
+	From            *User    `json:"from"`
+	Message         *Message `json:"message,omitempty"`
+	InlineMessageID string   `json:"inline_message_id,omitempty"`
+	ChatInstance    string   `json:"chat_instance"`
+	Data            string   `json:"data,omitempty"`
+	GameShortName   string   `json:"game_short_name,omitempty"`
 }
 
 // InlineQuery https://core.telegram.org/bots/api#inlinequery
@@ -136,6 +148,7 @@ type Location struct {
 	Latitude  float32 `json:"latitude"`
 }
 
+// ReplyMarkup is part of https://core.telegram.org/bots/api#sendmessage
 type ReplyMarkup struct {
 	// InlineKeyboardMarkup https://core.telegram.org/bots/api#inlinekeyboardmarkup
 	InlineKeyboard [][]*InlineKeyboardButton `json:"inline_keyboard,omitempty"`
