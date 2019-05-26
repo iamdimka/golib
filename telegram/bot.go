@@ -3,6 +3,7 @@ package telegram
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -39,7 +40,6 @@ func (b *Bot) request(method string, payload, response interface{}) (err error) 
 
 	url := strings.Join([]string{b.base, method}, "/")
 	data, err = json.Marshal(payload)
-
 	if err != nil {
 		return
 	}
@@ -54,6 +54,7 @@ func (b *Bot) request(method string, payload, response interface{}) (err error) 
 	r := Response{}
 	err = json.NewDecoder(res.Body).Decode(&r)
 	if err != nil {
+		log.Println(3)
 		return
 	}
 

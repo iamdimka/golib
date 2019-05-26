@@ -33,7 +33,7 @@ func (e *Response) Error() string {
 
 // User https://core.telegram.org/bots/api#user
 type User struct {
-	ID           int    `json:"id"`
+	ID           int64  `json:"id"`
 	IsBot        bool   `json:"is_bot,omitempty"`
 	FirstName    string `json:"first_name"`
 	LastName     string `json:"last_name,omitempty"`
